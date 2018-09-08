@@ -1,0 +1,124 @@
+public class ArrayDeque<Item>implements Deque<Item> {
+    private Item[] items;
+    private int size;
+    private int nextfirst;
+    private int nextlast;
+    private int rFactor;
+    public int resizecounts=0;
+
+
+    public ArrayDeque(){
+        items= (Item[]) new Object[8];
+        size=0;
+        nextfirst=0;
+        nextlast=1;
+        rFactor=2;
+    }
+
+    public int getlength(){
+        return items.length;
+    }
+
+    public int toindex(int x){
+        return remainder(x,items.length);
+    }
+
+    public int toindex(int x,int length){
+        return remainder(x,length);
+    }
+
+    @Override
+    public void addFirst(Item x){
+        items[toindex(nextfirst)]=x;
+        nextfirst-=1;
+        size+=1;
+        resize();
+    }
+
+    @Override
+    public Item removeFirst(){
+        if (isEmpty()){
+            return null;
+        }
+        Item p=items[toindex(nextfirst+1)];
+        items[toindex(nextfirst+1)]=null;
+        nextfirst+=1;
+        size-=1;
+        resize();
+        return p;
+    }
+
+    @Override
+    public void addLast(Item x){
+        items[toindex(nextlast)]=x;
+        nextlast+=1;
+        size+=1;
+        resize();
+    }
+
+    @Override
+    public Item removeLast(){
+        if(isEmpty()){
+            return null;
+        }
+        Item p=items[toindex(nextlast-1)];
+        items[toindex(nextlast-1)]=null;
+        nextlast-=1;
+        size-=1;
+        resize();
+        return p;
+    }
+
+    @Override
+    public boolean isEmpty(){
+        return (size==0);
+    }
+
+    @Override
+    public int size(){
+        return size;
+    }
+
+    @Override
+    public void printDeque(){
+        for(int i=(nextfirst+1);i<nextlast;i++){
+            System.out.println(items[toindex(i)]+" ");
+        }
+    }
+
+    @Override
+    public Item get(int index){
+        if(index>=size||index<0){
+            return null;
+        }
+        return items[toindex(nextfirst+index+1)];
+    }
+
+    public void resize(){
+        if(size==items.length){
+            resizecounts+=1;
+            Item[] newitems=(Item[]) new Object[items.length*rFactor];
+            clonetonew(newitems);
+        }
+        if(size<(items.length/2)-1){
+            resizecounts+=1;
+            Item[] newitems=(Item[]) new Object[items.length/rFactor];
+            clonetonew(newitems);
+        }
+    }
+
+    //* clone existing items to newitems and replace*//
+    public void clonetonew(Item[] newitems){
+        for(int i=nextfirst+1;i<nextlast;i++ ){
+            newitems[toindex(i,newitems.length)]=items[toindex(i)];
+        }
+        items=newitems;
+        nextfirst=toindex(nextfirst);
+        nextlast=nextfirst+size+1;
+    }
+
+    public int remainder(int a,int b){
+        return((a%b+b)%b);
+    }
+
+}
